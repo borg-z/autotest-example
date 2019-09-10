@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+    pytest:
+      image: selenium-allure
+      build:
+          context: .
+          dockerfile: Dockerfile
+      restart: 'no'
+      user: ${CURRENT_UID}
+      command: py.test -s tests/${TEST} --alluredir allure-results -r 1  --disable-warnings
+      volumes:
+          - ./:/tests
+      environment:
+        USERNAME: "Username"
+        PASSWORD: "Login"
+        BASEURL: "http://www.ru"
+        TOKEN: "Session token"
+    allure:
+      image: frankescobar/allure-docker-service
+      restart: unless-stopped
+      volumes:
+          - ./allure-results:/app/allure-results
+      environment:
+        KEEP_HISTORY: "TRUE"
+        CHECK_RESULTS_EVERY_SECONDS: NONE
+      ports:
+        - "4040:4040"
+        - "5050:5050"
+      depends_on:
+          - pytest
